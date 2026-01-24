@@ -13,7 +13,7 @@ export class ExampleComponent implements OnInit {
     constructor(private _apiService: ApiService, private _featuresService: FeaturesService) {}
 
     ngOnInit(): void {
-        this._apiService.example().subscribe(res => {
+        this._apiService.test().subscribe(res => {
             console.log(res);
         });
         this._featuresService.isFeatureActive('example').subscribe(res => {

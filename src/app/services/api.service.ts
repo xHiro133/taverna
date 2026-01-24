@@ -11,4 +11,8 @@ export class ApiService {
         return this._apiConfig.send('example', { params: { id: '123' }, queryParams: { section: 'info' } });
     }
 
+    test(): Observable<any> {
+        return this._apiConfig.send('test');
+    }
+
 }
