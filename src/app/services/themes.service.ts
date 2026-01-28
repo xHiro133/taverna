@@ -1,0 +1,56 @@
+import { Injectable } from "@angular/core";
+import { Theme, Themes } from "../models/themes.model";
+import { ConfigService } from "./config.service";
+import { map, Observable, of } from "rxjs";
+
+@Injectable()
+export class ThemesService {
+
+    private _currentThemeName = this._getThemeFromLocalStorage();
+    private _currentTheme?: Theme;
+
+    constructor(private _configService: ConfigService) {}
+
+    getCurrentTheme(): Observable<{ name?: string, theme?: Theme }> {
+        if (this._currentTheme) {
+            return of({ name: this._currentThemeName, theme: this._currentTheme });
+        }
+
+        return this.getThemes(this._currentThemeName).pipe(map((theme) => {
+            this._currentTheme = theme as Theme;
+            return { name: this._currentThemeName, theme: this._currentTheme };
+        }));
+    }
+
+    getThemes(theme?: Themes): Observable<{ [key: string]: Theme } | Theme> {
+        return this._configService.getThemesConfig().pipe(map((themes) => {
+            if (theme) {
+                return themes[theme];
+            }
+
+            return themes;
+        }));
+    }
+
+    changeTheme(theme: Themes): void {
+        this._configService.getThemesConfig().subscribe((themes) => {
+            for (const property of Object.entries(themes[theme])) {
+                document.documentElement.style.setProperty('--' + property[0], property[1]);
+            }
+
+            localStorage.setItem('theme', theme);
+
+            this._currentThemeName = theme;
+            this._currentTheme = themes[theme];
+        });
+    }
+
+    private _getThemeFromLocalStorage(): Themes {
+        if (localStorage.getItem('theme')) {
+            return (localStorage.getItem('theme')!) as Themes;
+        }
+
+        return Themes.LIGHT;
+    }
+
+}
